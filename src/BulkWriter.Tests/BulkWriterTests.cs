@@ -1,8 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Xunit;
 
 namespace BulkWriter.Tests
@@ -147,7 +147,7 @@ namespace BulkWriter.Tests
 
             Assert.Equal(1, count);
         }
-        
+
         public class MyTestClassForVarBinary
         {
             public int Id { get; set; }

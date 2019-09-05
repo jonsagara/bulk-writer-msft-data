@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace BulkWriter.Demo
 {
@@ -69,6 +69,6 @@ CREATE DATABASE [BulkWriter.Demo]", sqlConnection))
             }
         }
 
-        
+
     }
 }

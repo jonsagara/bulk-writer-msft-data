@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace BulkWriter.Tests
 {
