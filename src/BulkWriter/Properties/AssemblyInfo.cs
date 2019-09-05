@@ -17,4 +17,6 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("d4478ca6-9e19-4372-8d21-5f90f05212c0")]
 
+// Microsoft.Data.SqlClient types are not CLSCompliant, and we can't control them, so don't mark this
+//   assembly as CLSCompliant.
 //[assembly: CLSCompliant(true)]

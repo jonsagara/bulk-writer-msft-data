@@ -9,6 +9,10 @@ using Microsoft.Data.SqlClient;
 
 namespace BulkWriter
 {
+    // 2019-09-04 jonsagara:
+    //   * Added ctor(SqlConnection, SqlBulkCopyOptions, SqlTransaction) overload to allow the caller to specify options.
+    //   * Changed signature of Initialize to accept SqlBulkCopyOptions from the caller, and to use the caller's options
+    //     if non-null instead of computing options.
     public class BulkWriter<TResult> : IBulkWriter<TResult>
     {
         private readonly SqlBulkCopy _sqlBulkCopy;
@@ -17,20 +21,29 @@ namespace BulkWriter
         public BulkWriter(string connectionString)
         {
             _propertyMappings = typeof(TResult).BuildMappings();
-            _sqlBulkCopy = Initialize(options => new SqlBulkCopy(connectionString, options));
+            _sqlBulkCopy = Initialize(options => new SqlBulkCopy(connectionString, options), callerOptions: null);
         }
 
         public BulkWriter(SqlConnection connection, SqlTransaction transaction = null)
         {
             _propertyMappings = typeof(TResult).BuildMappings();
-            _sqlBulkCopy = Initialize(options => new SqlBulkCopy(connection, options, transaction));
+            _sqlBulkCopy = Initialize(options => new SqlBulkCopy(connection, options, transaction), callerOptions: null);
         }
 
-        private SqlBulkCopy Initialize(Func<SqlBulkCopyOptions, SqlBulkCopy> createBulkCopy)
+        public BulkWriter(SqlConnection connection, SqlBulkCopyOptions callerOptions, SqlTransaction transaction)
+        {
+            _propertyMappings = typeof(TResult).BuildMappings();
+            _sqlBulkCopy = Initialize(options => new SqlBulkCopy(connection, options, transaction), callerOptions);
+        }
+
+        private SqlBulkCopy Initialize(Func<SqlBulkCopyOptions, SqlBulkCopy> createBulkCopy, SqlBulkCopyOptions? callerOptions)
         {
             var hasAnyKeys = _propertyMappings.Any(x => x.Destination.IsKey);
-            var sqlBulkCopyOptions = (hasAnyKeys ? SqlBulkCopyOptions.KeepIdentity : SqlBulkCopyOptions.Default)
-                | SqlBulkCopyOptions.TableLock;
+
+            // If the caller provided options, use those. Otherwise, compute them.
+            var sqlBulkCopyOptions = callerOptions != null
+                ? callerOptions.Value
+                : (hasAnyKeys ? SqlBulkCopyOptions.KeepIdentity : SqlBulkCopyOptions.Default) | SqlBulkCopyOptions.TableLock;
 
             var tableAttribute = typeof(TResult).GetTypeInfo().GetCustomAttribute<TableAttribute>();
             var schemaName = tableAttribute?.Schema;
